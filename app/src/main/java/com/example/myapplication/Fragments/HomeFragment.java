@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.myapplication.Adapter.HotProductAdapter;
 import com.example.myapplication.Adapter.ManufacturerAdapter;
+import com.example.myapplication.Models.ApiResponseManufacturer;
 import com.example.myapplication.Models.HotProduct;
 import com.example.myapplication.Models.Manufacturer;
 import com.example.myapplication.R;
@@ -115,25 +116,43 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-    private void showListManufacturer(){
+    private void showListManufacturer() {
         listManufacturers = new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         rcvManufacturer.setLayoutManager(linearLayoutManager);
+        manufacturerAdapter = new ManufacturerAdapter(listManufacturers);
+        rcvManufacturer.setAdapter(manufacturerAdapter);
         callApiGetManufacturer();
     }
-    private void callApiGetManufacturer(){
-        ApiService.apiService.getListManufacturers().enqueue(new Callback<List<Manufacturer>>() {
+
+    private void callApiGetManufacturer() {
+        ApiService.apiService.getListManufacturers().enqueue(new Callback<ApiResponseManufacturer>() {
             @Override
-            public void onResponse(Call<List<Manufacturer>> call, Response<List<Manufacturer>> response) {
-                listManufacturers = response.body();
-                Log.d("body", String.valueOf(listManufacturers));
-                manufacturerAdapter = new ManufacturerAdapter(listManufacturers);
+            public void onResponse(Call<ApiResponseManufacturer> call, Response<ApiResponseManufacturer> response) {
+                ApiResponseManufacturer apiResponseManufacturer = response.body();
+                listManufacturers = apiResponseManufacturer.getData();
+                if (listManufacturers.size() > 4) {
+                    // Tạo một danh sách mới chỉ chứa 5 phần tử đầu tiên
+                    List<Manufacturer> displayList = listManufacturers.subList(0, 4);
+
+                    // Tạo một đối tượng Manufacturer để hiển thị "Show All"
+                    Manufacturer showAllManufacturer = new Manufacturer("show_all", "Show All ->", "");
+
+                    displayList.add(showAllManufacturer);
+
+                    manufacturerAdapter = new ManufacturerAdapter(displayList);
+
+                } else {
+                    manufacturerAdapter = new ManufacturerAdapter(listManufacturers);
+
+                }
                 rcvManufacturer.setAdapter(manufacturerAdapter);
             }
 
             @Override
-            public void onFailure(Call<List<Manufacturer>> call, Throwable t) {
-                Toast.makeText(getActivity(), "call api failure", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<ApiResponseManufacturer> call, Throwable t) {
+                Toast.makeText(getActivity(), "call api fail", Toast.LENGTH_SHORT).show();
+                Log.e("call api", t.getMessage() );
             }
         });
     }

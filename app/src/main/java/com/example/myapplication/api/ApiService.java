@@ -1,5 +1,6 @@
 package com.example.myapplication.api;
 
+import com.example.myapplication.Models.ApiResponseManufacturer;
 import com.example.myapplication.Models.Manufacturer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,5 +24,5 @@ public interface ApiService {
             .create(ApiService.class);
 
     @GET("manufacturer")
-    Call<List<Manufacturer>> getListManufacturers();
+    Call<ApiResponseManufacturer> getListManufacturers();
 }

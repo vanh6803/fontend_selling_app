@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.Models.Manufacturer;
@@ -16,11 +17,12 @@ import java.util.List;
 public class ManufacturerAdapter extends RecyclerView.Adapter<ManufacturerAdapter.ManufacturerViewHolder> {
 
     private final List<Manufacturer> list;
-
+    private boolean isShowAll = false;
     public ManufacturerAdapter(List<Manufacturer> list) {
         this.list = list;
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override

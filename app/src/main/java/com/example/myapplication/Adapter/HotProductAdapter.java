@@ -45,9 +45,9 @@ public class HotProductAdapter extends RecyclerView.Adapter<HotProductAdapter.Ho
         return 0;
     }
 
-    public class HotProductViewHoder extends RecyclerView.ViewHolder {
-        private TextView title;
-        private ImageView img;
+    public static class HotProductViewHoder extends RecyclerView.ViewHolder {
+        private final TextView title;
+        private final ImageView img;
 
         public HotProductViewHoder(@NonNull View itemView) {
             super(itemView);

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -18,9 +19,12 @@ import android.widget.Toast;
 
 import com.example.myapplication.Adapter.HotProductAdapter;
 import com.example.myapplication.Adapter.ManufacturerAdapter;
+import com.example.myapplication.Adapter.ProductAdapter;
 import com.example.myapplication.Models.ApiResponseManufacturer;
+import com.example.myapplication.Models.ApiResponseProduct;
 import com.example.myapplication.Models.HotProduct;
 import com.example.myapplication.Models.Manufacturer;
+import com.example.myapplication.Models.Product;
 import com.example.myapplication.R;
 import com.example.myapplication.api.ApiService;
 
@@ -40,9 +44,11 @@ public class HomeFragment extends Fragment {
     private CircleIndicator3 circleIndicator3;
     private List<HotProduct> hotProductList;
     private ManufacturerAdapter manufacturerAdapter;
+    private ProductAdapter productAdapter;
 
     private List<Manufacturer> listManufacturers;
-    private RecyclerView rcvManufacturer;
+    private List<Product> listProducts;
+    private RecyclerView rcvManufacturer,rcvProduct;
     private final Handler handler = new Handler();
     private final Runnable runnable = new Runnable() {
         @Override
@@ -85,12 +91,14 @@ public class HomeFragment extends Fragment {
 
         sliderImageHotProduct();
         showListManufacturer();
+        showListProduct();
     }
 
     private void initView(View view) {
         hotProductViewPager2 = view.findViewById(R.id.viewpager2_introHotProduct);
         circleIndicator3 = view.findViewById(R.id.circleIndicator);
         rcvManufacturer = view.findViewById(R.id.rcv_manufacturer);
+        rcvProduct = view.findViewById(R.id.rcv_products);
     }
     private List<HotProduct> getListHotProducts (){
         List<HotProduct> list = new ArrayList<>();
@@ -98,8 +106,6 @@ public class HomeFragment extends Fragment {
         list.add((new HotProduct(R.drawable.image_test, "siêu sell giảm \ngiá tận 20%")));
         list.add((new HotProduct(R.drawable.image_test, "siêu sell giảm \ngiá tận 20%")));
         list.add((new HotProduct(R.drawable.image_test, "siêu sell giảm \ngiá tận 20%")));
-
-
         return list;
     }
     private void sliderImageHotProduct(){
@@ -131,21 +137,7 @@ public class HomeFragment extends Fragment {
             public void onResponse(Call<ApiResponseManufacturer> call, Response<ApiResponseManufacturer> response) {
                 ApiResponseManufacturer apiResponseManufacturer = response.body();
                 listManufacturers = apiResponseManufacturer.getData();
-                if (listManufacturers.size() > 4) {
-                    // Tạo một danh sách mới chỉ chứa 5 phần tử đầu tiên
-                    List<Manufacturer> displayList = listManufacturers.subList(0, 4);
-
-                    // Tạo một đối tượng Manufacturer để hiển thị "Show All"
-                    Manufacturer showAllManufacturer = new Manufacturer("show_all", "Show All ->", "");
-
-                    displayList.add(showAllManufacturer);
-
-                    manufacturerAdapter = new ManufacturerAdapter(displayList);
-
-                } else {
-                    manufacturerAdapter = new ManufacturerAdapter(listManufacturers);
-
-                }
+                manufacturerAdapter = new ManufacturerAdapter(listManufacturers);
                 rcvManufacturer.setAdapter(manufacturerAdapter);
             }
 
@@ -153,6 +145,37 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<ApiResponseManufacturer> call, Throwable t) {
                 Toast.makeText(getActivity(), "call api fail", Toast.LENGTH_SHORT).show();
                 Log.e("call api", t.getMessage() );
+            }
+        });
+    }
+
+    private void showListProduct(){
+        listProducts = new ArrayList<>();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(),2);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return 1;
+            }
+        });
+        rcvProduct.setLayoutManager(gridLayoutManager);
+        callApiGetProduct();
+    }
+
+    private void callApiGetProduct(){
+        ApiService.apiService.getListProduct().enqueue(new Callback<ApiResponseProduct>() {
+            @Override
+            public void onResponse(Call<ApiResponseProduct> call, Response<ApiResponseProduct> response) {
+                ApiResponseProduct apiResponseProduct =response.body();
+                listProducts = apiResponseProduct.getData();
+                productAdapter = new ProductAdapter(listProducts, getContext());
+                rcvProduct.setAdapter(productAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseProduct> call, Throwable t) {
+                Toast.makeText(getActivity(), "call api fail", Toast.LENGTH_SHORT).show();
+                Log.e("call api product", t.getMessage() );
             }
         });
     }
